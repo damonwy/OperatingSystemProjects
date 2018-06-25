@@ -68,13 +68,40 @@ void PageTable::enable_paging()
    unsigned long cr0 = read_cr0();
    cr0 = cr0 | 0x8000000;
    write_cr0(cr0);
-  // write_cr0(read_cr0 | (unsigned long)0x8000000); // set the paging bit in CR0 to 1
    Console::puts("Enabled paging\n");
 }
 
 void PageTable::handle_fault(REGS * _r)
 {
-  //assert(false);
+   unsigned long error_address = read_cr2();
+   unsigned long table_id = error_address >> 12;
+   unsigned long directory_id = table_id >> 10;
+
+   table_id &= 0x3FF;
+   directory_id &= 0x3FF;
+
+   // Two-level page table. A page fault can be caused by:
+   // Invalid entry in the page directory
+   if(current_page_table->page_directory[directory_id] & 1 == false)
+   {
+      // Page not present
+      unsigned long table_frame_id = kernel_mem_pool->get_frames(1);
+      unsigned long * page_table = (unsigned long *)(table_frame_id * Machine::PAGE_SIZE);
+      for(int i = 1; i < 1024; i++){
+        page_table[i] = 0 | 2; // not present (just use the address 0)
+      }
+      current_page_table->page_directory[directory_id] = (unsigned long) page_table;
+      current_page_table->page_directory[directory_id] |= 3;
+   }
+
+   unsigned long *pt = (unsigned long *)current_page_table->page_directory[directory_id];
+
+   // Invalid entry in a page table page
+   if(pt[table_id] & 1 == false) {
+      unsigned long table_frame_id = process_mem_pool->get_frames(1);
+      pt[table_id] =  (unsigned long)(Machine::PAGE_SIZE * table_frame_id);
+      pt[table_id] |= 3; // Mark it as "present"
+   }
   Console::puts("handled page fault\n");
 }
 
