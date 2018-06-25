@@ -11,14 +11,13 @@ ContFramePool * PageTable::process_mem_pool = NULL;
 unsigned long PageTable::shared_size = 0;
 
 
-
 void PageTable::init_paging(ContFramePool * _kernel_mem_pool,
                             ContFramePool * _process_mem_pool,
                             const unsigned long _shared_size)
 {
-   this->kernel_mem_pool = _kernel_mem_pool;
-   this->process_mem_pool = _process_mem_pool;
-   this->shared_size = _shared_size;
+   kernel_mem_pool = _kernel_mem_pool;
+   process_mem_pool = _process_mem_pool;
+   shared_size = _shared_size;
    Console::puts("Initialized Paging System\n");
 }
 
@@ -43,7 +42,7 @@ PageTable::PageTable()
 
    // Fill in the Page Directory Entries
    // fill the first entry of the page directory
-   page_directory[0] = page_table;
+   page_directory[0] = (unsigned long)page_table;
    page_directory[0] |= 3; // attribute set to: supervisor level, read/write, present(011 in binary)
 
    // fill in the rest 1023 entries 
@@ -56,20 +55,26 @@ PageTable::PageTable()
 
 
 void PageTable::load()
-{
-   assert(false);
+{ 
+   current_page_table = this;
+   // Start up Paging
+   // write_cr3, read_cr3, write_cr0, and read_cr0 all come from the assembly functions
+   write_cr3((unsigned long)page_directory); // put that page directory address into CR3
    Console::puts("Loaded page table\n");
 }
 
 void PageTable::enable_paging()
-{
-   assert(false);
+{ 
+   unsigned long cr0 = read_cr0();
+   cr0 = cr0 | 0x8000000;
+   write_cr0(cr0);
+  // write_cr0(read_cr0 | (unsigned long)0x8000000); // set the paging bit in CR0 to 1
    Console::puts("Enabled paging\n");
 }
 
 void PageTable::handle_fault(REGS * _r)
 {
-  assert(false);
+  //assert(false);
   Console::puts("handled page fault\n");
 }
 
