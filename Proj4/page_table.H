@@ -51,6 +51,7 @@ private:
     
     /* DATA FOR CURRENT PAGE TABLE */
     unsigned long        * page_directory;     /* where is page directory located? */
+    static VMPool * vmpool_head;               /* Head of a liist of registered pools */
     
 public:
     static const unsigned int PAGE_SIZE        = Machine::PAGE_SIZE;
