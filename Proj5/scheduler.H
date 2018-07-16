@@ -110,6 +110,35 @@ public:
     }
   }
 
+  void end(Thread * _data){
+    Node * curr;
+    Node * prev;
+
+    curr = head;
+    prev = NULL;
+
+    if(curr->data == _data){
+      head = head->next;
+      delete curr;
+      return;
+    }
+
+    while(curr->data != _data){
+      prev = curr;
+      curr = curr->next;
+    }
+
+    if(curr->data == tail->data){
+      prev->next = curr->next;
+      tail = prev;
+      delete curr;
+      return;
+    }
+
+    prev->next = curr->next;
+    delete curr;
+  }
+
 };
 
 /*--------------------------------------------------------------------------*/

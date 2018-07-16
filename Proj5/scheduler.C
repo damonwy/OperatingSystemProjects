@@ -77,6 +77,6 @@ void Scheduler::add(Thread * _thread) {
 
 void Scheduler::terminate(Thread * _thread) {
   Machine::disable_interrupts();
-  
+  ready_queue.end(_thread);
   Machine::enable_interrupts();
 }
