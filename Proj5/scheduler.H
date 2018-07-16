@@ -51,13 +51,73 @@
  */
 
 /*--------------------------------------------------------------------------*/
+/* QUEUE */
+/*--------------------------------------------------------------------------*/
+
+struct Node
+{
+  Node * next;
+  Thread * data;
+  Node(Thread *_data){
+    next = NULL;
+    data = _data;
+  }
+};
+
+class Queue
+{
+private:
+  Node * head;
+  Node * tail;
+
+
+public:
+  Queue(){
+    head = NULL;
+    tail = NULL;
+  }
+  ~Queue();
+
+  void in(Thread * _data){
+    Node * new_node = new Node(_data);
+    if(head == NULL){
+      head = new_node;
+      tail = head;
+    }else{
+      tail->next = new_node;
+      tail = tail->next;
+    }
+  }
+
+  bool out(Thread * &_data){
+    if(head == NULL){
+      Console::puts("Nothing in the queue!\n")
+      _data = NULL;
+      return false;
+    }
+
+    Node * out_node = head;
+    Thread * out_data = head->data;
+    head = out_node->next;
+    delete out_node;
+    _data = out_data;
+    return true;
+  }
+
+
+};
+
+/*--------------------------------------------------------------------------*/
 /* SCHEDULER */
 /*--------------------------------------------------------------------------*/
 
 class Scheduler {
 
   /* The scheduler may need private members... */
-  
+private:
+  Queue * ready_queue;
+  Thread * current_thread;
+
 public:
 
    Scheduler();
