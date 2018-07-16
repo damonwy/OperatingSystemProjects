@@ -13,13 +13,14 @@
 /* DEFINES */
 /*--------------------------------------------------------------------------*/
 
-/* -- (none) -- */
+#define NULL 0
 
 /*--------------------------------------------------------------------------*/
 /* INCLUDES */
 /*--------------------------------------------------------------------------*/
 
 #include "thread.H"
+#include "console.H"
 
 /*--------------------------------------------------------------------------*/
 /* !!! IMPLEMENTATION HINT !!! */
@@ -70,7 +71,6 @@ private:
   Node * head;
   Node * tail;
 
-
 public:
   Queue(){
     head = NULL;
@@ -89,21 +89,26 @@ public:
     }
   }
 
-  bool out(Thread * &_data){
+  Thread * out(){
     if(head == NULL){
-      Console::puts("Nothing in the queue!\n")
-      _data = NULL;
-      return false;
+      Console::puts("Nothing in the queue!\n");
+      return NULL;
     }
 
     Node * out_node = head;
     Thread * out_data = head->data;
     head = out_node->next;
     delete out_node;
-    _data = out_data;
-    return true;
+    return out_data;
   }
 
+  bool isEmpty(){
+    if(head == NULL){
+      return true;
+    }else{
+      return false;
+    }
+  }
 
 };
 
@@ -115,7 +120,7 @@ class Scheduler {
 
   /* The scheduler may need private members... */
 private:
-  Queue * ready_queue;
+  Queue ready_queue;
   Thread * current_thread;
 
 public:

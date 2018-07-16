@@ -18,7 +18,6 @@
 
 #include "scheduler.H"
 #include "thread.H"
-#include "console.H"
 #include "utils.H"
 #include "assert.H"
 #include "simple_keyboard.H"
@@ -52,12 +51,12 @@ Scheduler::Scheduler() {
 
 void Scheduler::yield() {
   Machine::disable_interrupts();
-  if(ready_queue->head == NULL){
+  if(ready_queue.isEmpty()){
     Console::puts("Nothing in ready_queue!\n");
+    Machine::enable_interrupts();
     return;
   }else{
-    Thread * next;
-    ready_queue->out(next);
+    Thread * next = ready_queue.out();
     current_thread = next;
     Thread::dispatch_to(current_thread);
   }
@@ -65,8 +64,10 @@ void Scheduler::yield() {
 }
 
 void Scheduler::resume(Thread * _thread) {
-  Machine::disable_interrupts();
-  ready_queue->in(_thread);
+  if(Machine::interrupts_enabled()){
+    Machine::disable_interrupts();
+  }
+  ready_queue.in(_thread);
   Machine::enable_interrupts();
 }
 
